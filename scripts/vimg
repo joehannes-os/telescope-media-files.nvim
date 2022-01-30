@@ -1,12 +1,5 @@
 #!/bin/bash
 
-case $(uname) in
- Darwin)
-     echo "Not supported"
-     exit
-	;;
-esac
-
 SCRIPT=`realpath $0`
 
 readonly BASH_BINARY="$(which bash)"
