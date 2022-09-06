@@ -28,8 +28,8 @@ function finalise {
 function draw_preview {
 
     if [[ "$1" == "imagepreview" ]]; then
-        >"${UEBERZUG_FIFO}" declare -A -p cmd=( \
-            [action]=add [identifier]="${PREVIEW_ID}" \
+        >"${UEBERZUG_FIFO}" declare -A -p command=( \
+            [action]="add" [identifier]="${PREVIEW_ID}" \
             [x]="${3}" [y]="${4}" \
             [width]="${5}" [height]="${6}" \
             [path]="${2}")
