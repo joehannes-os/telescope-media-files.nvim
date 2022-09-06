@@ -3,7 +3,7 @@
 SCRIPT=`realpath $0`
 
 readonly BASH_BINARY="$(which bash)"
-declare -x UEBERZUG_FIFO="$(mktemp --dry-run --suffix "vimg-$$-ueberzug")"
+declare -x UEBERZUG_FIFO="$(mktemp --dry-run --suffix 'vimg-$$-ueberzug')"
 declare -x PREVIEW_ID="preview"
 
 declare -x TMP_FOLDER="/tmp/vimg"
