@@ -29,9 +29,9 @@ function draw_preview {
 
     if [[ "$1" == "imagepreview" ]]; then
         >"${UEBERZUG_FIFO}" declare -A -p cmd=(\
-            [action]=add [identifier]="${PREVIEW_ID}" \
-            [x]="${3}" [y]="${4}" \
-            [width]="${5}" [height]="${6}" \
+            [action]=add [identifier]="${PREVIEW_ID}"\
+            [x]="${3}" [y]="${4}"\
+            [width]="${5}" [height]="${6}"\
             [path]="${2}")
 
     elif [[ "$1" == "gifpreview" ]]; then
@@ -42,7 +42,7 @@ function draw_preview {
         echo -ne "Loading preview... 0%\r"
         frame_total=$(identify -format "%n\n" $2 | head -1)
         IFS=$'\n' read -r -d '' -a ticks < <(identify -format "%T\n" $2 && printf '\0'); unset IFS
-        [[ $(ls ${path}/ 2>/dev/null | wc -l) -ne $frame_total ]] \
+        [[ $(ls ${path}/ 2>/dev/null | wc -l) -ne $frame_total ]]\
           && (mkdir -p ${path} && convert -coalesce -resize 720x480\> "$2" "${path}/${file}.png"&disown)
 
         frame_index=0
@@ -52,10 +52,10 @@ function draw_preview {
             echo -ne "Loading preview... $((frame_extracted*100/frame_total))%\r"
           else
             echo -ne "                     \r"
-            >"${UEBERZUG_FIFO}" declare -A -p cmd=( \
-                [action]=add [identifier]="${PREVIEW_ID}" \
-                [x]="${3}" [y]="${4}" \
-                [width]="${5}" [height]="${6}" \
+            >"${UEBERZUG_FIFO}" declare -A -p cmd=(\
+                [action]=add [identifier]="${PREVIEW_ID}"\
+                [x]="${3}" [y]="${4}"\
+                [width]="${5}" [height]="${6}"\
                 [path]="${path}/${file}-${frame_index}.png")
             delay=$(bc <<< "scale=2; ${ticks[$frame_index]}/100") # 1 tick == 1/100s
             sleep $delay
@@ -68,20 +68,20 @@ function draw_preview {
         path="${2##*/}"
         echo -e "Loading preview..\nFile: $path"
         ffmpegthumbnailer -i "$2" -o "${TMP_FOLDER}/${path}.png" -s 0 -q 10
-        >"${UEBERZUG_FIFO}" declare -A -p cmd=( \
-            [action]=add [identifier]="${PREVIEW_ID}" \
-            [x]="${3}" [y]="${4}" \
-            [width]="${5}" [height]="${6}" \
+        >"${UEBERZUG_FIFO}" declare -A -p cmd=(\
+            [action]=add [identifier]="${PREVIEW_ID}"\
+            [x]="${3}" [y]="${4}"\
+            [width]="${5}" [height]="${6}"\
             [path]="${TMP_FOLDER}/${path}.png")
 
     elif [[ "$1" == "pdfpreview" ]]; then
         path="${2##*/}"
         echo -e "Loading preview..\nFile: $path"
         [[ ! -f "${TMP_FOLDER}/${path}.png" ]] && pdftoppm -png -singlefile "$2" "${TMP_FOLDER}/${path}"
-        >"${UEBERZUG_FIFO}" declare -A -p cmd=( \
-            [action]=add [identifier]="${PREVIEW_ID}" \
-            [x]="${3}" [y]="${4}" \
-            [width]="${5}" [height]="${6}" \
+        >"${UEBERZUG_FIFO}" declare -A -p cmd=(\
+            [action]=add [identifier]="${PREVIEW_ID}"\
+            [x]="${3}" [y]="${4}"\
+            [width]="${5}" [height]="${6}"\
             [path]="${TMP_FOLDER}/${path}.png")
 
     fi
