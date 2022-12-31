@@ -20,22 +20,43 @@ local M = {}
 local filetypes = {}
 local find_cmd = ""
 
-M.base_directory=""
+M.base_directory = ""
+
 M.media_preview = defaulter(function(opts)
   return previewers.new_termopen_previewer {
-    get_command = opts.get_command or function(entry)
-      local tmp_table = vim.split(entry.value,"\t");
+    get_command = previewers.mime_hook or function(entry)
+      local tmp_table = vim.split(entry.value, "\t");
       local preview = opts.get_preview_window()
       opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
       if vim.tbl_isempty(tmp_table) then
-        return {"echo", ""}
+        return { "echo", "" }
       end
       return {
-        M.base_directory .. '/scripts/vimg' ,
+        'viu',
         string.format([[%s/%s]], opts.cwd, tmp_table[1]),
-        preview.col ,
-        preview.line + 1 ,
-        preview.width ,
+        preview.col,
+        preview.line + 1,
+        preview.width,
+        preview.height
+      }
+    end
+  }
+end, {})
+M.media_preview_ueberzug = defaulter(function(opts)
+  return previewers.new_termopen_previewer {
+    get_command = opts.get_command or function(entry)
+      local tmp_table = vim.split(entry.value, "\t");
+      local preview = opts.get_preview_window()
+      opts.cwd = opts.cwd and vim.fn.expand(opts.cwd) or vim.loop.cwd()
+      if vim.tbl_isempty(tmp_table) then
+        return { "echo", "" }
+      end
+      return {
+        M.base_directory .. '/scripts/vimg',
+        string.format([[%s/%s]], opts.cwd, tmp_table[1]),
+        preview.col,
+        preview.line + 1,
+        preview.width,
         preview.height
       }
     end
@@ -48,14 +69,14 @@ function M.media_files(opts)
       'find',
       '.',
       '-iregex',
-      [[.*\.\(]]..table.concat(filetypes,"\\|") .. [[\)$]]
+      [[.*\.\(]] .. table.concat(filetypes, "\\|") .. [[\)$]]
     },
     fd = {
       'fd',
       '--type',
       'f',
       '--regex',
-      [[.*.(]]..table.concat(filetypes,"|") .. [[)$]],
+      [[.*.(]] .. table.concat(filetypes, "|") .. [[)$]],
       '.'
     },
     fdfind = {
@@ -63,32 +84,32 @@ function M.media_files(opts)
       '--type',
       'f',
       '--regex',
-      [[.*.(]]..table.concat(filetypes,"|") .. [[)$]],
+      [[.*.(]] .. table.concat(filetypes, "|") .. [[)$]],
       '.'
     },
     rg = {
       'rg',
       '--files',
       '--glob',
-      [[*.{]]..table.concat(filetypes,",") .. [[}]],
+      [[*.{]] .. table.concat(filetypes, ",") .. [[}]],
       '.'
     },
   }
 
   if not vim.fn.executable(find_cmd) then
-    error("You don't have "..find_cmd.."! Install it first or use other finder.")
+    error("You don't have " .. find_cmd .. "! Install it first or use other finder.")
     return
   end
 
   if not find_commands[find_cmd] then
-    error(find_cmd.." is not supported!")
+    error(find_cmd .. " is not supported!")
     return
   end
 
   local sourced_file = require('plenary.debug_utils').sourced_filepath()
   M.base_directory = vim.fn.fnamemodify(sourced_file, ":h:h:h:h")
   opts = opts or {}
-  opts.attach_mappings= function(prompt_bufnr,map)
+  opts.attach_mappings = function(prompt_bufnr, map)
     actions.select_default:replace(function()
       local entry = action_state.get_selected_entry()
       actions.close(prompt_bufnr)
@@ -102,11 +123,11 @@ function M.media_files(opts)
   end
   opts.path_display = { "shorten" }
 
-  local popup_opts={}
-  opts.get_preview_window=function ()
+  local popup_opts = {}
+  opts.get_preview_window = function()
     return popup_opts.preview
   end
-  local picker=pickers.new(opts, {
+  local picker = pickers.new(opts, {
     prompt_title = 'Media Files',
     finder = finders.new_oneshot_job(
       find_commands[find_cmd],
@@ -125,10 +146,9 @@ function M.media_files(opts)
   picker:find()
 end
 
-
 return require('telescope').register_extension {
   setup = function(ext_config)
-    filetypes = ext_config.filetypes or {"png", "jpg", "gif", "mp4", "webm", "pdf"}
+    filetypes = ext_config.filetypes or { "png", "jpg", "gif", "mp4", "webm", "pdf" }
     find_cmd = ext_config.find_cmd or "fd"
   end,
   exports = {
